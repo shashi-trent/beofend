@@ -1,3 +1,20 @@
+class Loof {
+    #data;
+    constructor(setter=(val)=>{}, defaultData={}) {
+        this.setter = setter;
+        this.#data = defaultData;
+    }
+
+    get() {
+        return this.#data;
+    }
+
+    set(data) {
+        this.setter.apply(data);
+        this.#data = data;
+    }
+}
+
 class State {
     #id = "";
     #data;
@@ -58,3 +75,53 @@ function effect(func, states) {
     }
 }
 
+
+// interactor => to others
+class UrlOptions {
+    static BASIC = {
+        "GET": {
+            "method": "GET",
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        },
+        "POST": {
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        }
+    }
+}
+
+class Agent {
+    baseUrl;
+    constructor(baseUrl, urlOptions={}, onError=(err)=>{console.log("onError :: ", err);}) {
+        this.baseUrl = baseUrl;
+        this.urlOptions = urlOptions;
+        this.urlOptions["BEO-DEFAULT"] = {"method": "GET"};
+        this.onError = onError;
+    }
+
+    yieldAsJson(state, url, body={}, useOption="BEO-DEFAULT", errorHandler=this.onError) {
+        fetch(this.baseUrl + "/" + url, {...this.urlOptions[useOption], "body" : JSON.stringify(body)})
+        .then(response => response.json)
+        .then(jsonRes => {
+            state.set(jsonRes);
+        })
+        .catch(err => {
+            errorHandler.apply(err);
+        });
+    }
+
+    yieldAsRaw(state, url, body={}, useOption="BEO-DEFAULT", errorHandler=this.onError) {
+        fetch(this.baseUrl + "/" + url, {...this.urlOptions[useOption], ...(body ? {"body" : JSON.stringify(body)} : {})})
+        .then(response => response.text())
+        .then(textRes => {
+            state.set(textRes);
+        })
+        .catch(err => {
+            errorHandler.apply(err);
+        });
+    }
+}
