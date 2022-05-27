@@ -77,8 +77,8 @@ function effect(func, states) {
 
 
 // interactor => to others
-class UrlOptions {
-    static BASIC = {
+const UrlOptions = {
+    BASIC: {
         "GET": {
             "method": "GET",
             "headers": {
@@ -99,12 +99,12 @@ class Agent {
     constructor(baseUrl, urlOptions={}, onError=(err)=>{console.log("onError :: ", err);}) {
         this.baseUrl = baseUrl;
         this.urlOptions = urlOptions;
-        this.urlOptions["BEO-DEFAULT"] = {"method": "GET"};
+        if(!this.urlOptions["DEFAULT"]) this.urlOptions["DEFAULT"] = {"method": "GET"};
         this.onError = onError;
     }
 
-    yieldAsJson(state, url, body={}, useOption="BEO-DEFAULT", errorHandler=this.onError) {
-        fetch(this.baseUrl + "/" + url, {...this.urlOptions[useOption], "body" : JSON.stringify(body)})
+    yieldAsJson(state, url, body=null, useOption="DEFAULT", errorHandler=this.onError) {
+        fetch(this.baseUrl + "/" + url, {...this.urlOptions[useOption], ...(body ? {"body" : JSON.stringify(body)} : {})})
         .then(response => response.json)
         .then(jsonRes => {
             state.set(jsonRes);
@@ -114,7 +114,7 @@ class Agent {
         });
     }
 
-    yieldAsRaw(state, url, body={}, useOption="BEO-DEFAULT", errorHandler=this.onError) {
+    yieldAsRaw(state, url, body=null, useOption="DEFAULT", errorHandler=this.onError) {
         fetch(this.baseUrl + "/" + url, {...this.urlOptions[useOption], ...(body ? {"body" : JSON.stringify(body)} : {})})
         .then(response => response.text())
         .then(textRes => {
