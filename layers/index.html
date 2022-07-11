@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="content" name="root-1" lock="1"></div>
+    <script>
+        document.getElementById("content").innerText = window.location.hash;
+        window.addEventListener("locationchange", function (){console.log("location-change!!");});
+        window.addEventListener("hashchange", function (){console.log("hash-change!!");});
+    </script>
+</body>
+</html>
